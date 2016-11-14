@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+       <bean id="redis" class="com.apin.common.jedis.Redis">
+              <property name="redisExecuteTemplate" ref="redisExecuteTemplate"/>
+       </bean>
+
+       <bean id="redisExecuteTemplate" class="com.apin.common.jedis.RedisExecuteTemplate">
+              <property name="jedisPool" ref="jedisPool"/>
+       </bean>
+
+       <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+              <property name="maxIdle" value="300"/> <!--最大能够保持idel状态的对象数-->
+              <property name="maxTotal" value="60000"/><!--最大分配的对象数-->
+              <property name="testOnBorrow" value="true"/><!--当调用borrow Oject方法时，是否进行有效性检查-->
+       </bean>
+
+       <bean id="jedisPool" class="redis.clients.jedis.JedisPool" destroy-method="close">
+              <constructor-arg index="0" ref="jedisPoolConfig"/>
+              <constructor-arg index="1" value="120.26.85.57"/>
+              <constructor-arg index="2" value="6379" type="int"/>
+              <constructor-arg index="3" value="3000" type="int"/>
+              <constructor-arg index="4" value="apin2015test"/>
+       </bean>
+
+       <!--<bean id="iosXingeApp" class="com.tencent.xinge.XingeApp">-->
+              <!--<constructor-arg type="long"><value>2200148331</value></constructor-arg>-->
+              <!--<constructor-arg type="java.lang.String"><value>85c97b96c74c7c9164c31a7636671389</value></constructor-arg>-->
+       <!--</bean>-->
+
+       <!--<bean id="androidXingeApp" class="com.tencent.xinge.XingeApp">-->
+              <!--<constructor-arg type="long"><value>2100139073</value></constructor-arg>-->
+              <!--<constructor-arg type="java.lang.String"><value>2a08d5c67ba00c5a6e051f7ddde2ff6d</value></constructor-arg>-->
+       <!--</bean>-->
+
+       <!--<bean id="andriodPushService" class="com.apin.third.service.info.push.AndriodPushService">-->
+              <!--<property name="xingeApp" ref="androidXingeApp"/>-->
+       <!--</bean>-->
+
+       <!--<bean id="iosPushService" class="com.apin.third.service.info.push.IosPushService">-->
+              <!--<property name="xingeApp" ref="iosXingeApp"/>-->
+              <!--<property name="env" value="2"/>-->
+       <!--</bean>-->
+
+       <bean id="threadPoolTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+              <property name="corePoolSize" value="1"/>
+              <property name="maxPoolSize"  value="2"/>
+              <property name="queueCapacity" value="10"/>
+              <property name="keepAliveSeconds" value="300"/>
+              <property name="threadNamePrefix" value="sms"/>
+       </bean>
+
+       <bean id="pushService" class="com.apin.third.service.info.push.PushService">
+              <property name="threadPoolTaskExecutor" ref="threadPoolTaskExecutor"/>
+              <property name="redis" ref="redis"/>
+       </bean>
+
+</beans>

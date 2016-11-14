@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0">
+
+    <display-name>web demo</display-name>
+
+
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath*:/applicationContext.xml</param-value>
+    </context-param>
+
+    <!--这个主要用于加载根上下文，如果没有这个监听器的话就不会去加载这个根上下文，保存在ServletContext中-->
+    <!--不使用listener监听器加载spring配置。只使用DispatcherServlet来加载spring的配置，这样就不会有双亲上下文，只有一个上下文-->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
+    </listener>
+
+    <!--每个DispatcherServlet都有一个自己的WebApplicationContext上下文，这个上下文继承了根上下文所有的东西，保存在ServletContext中，这样就有了双亲上下文-->
+    <!--这个context继承了根WebApplicationContext的所有bean定义，这些继承的bean也可以在每个servlet自己所属的域中被覆盖，覆盖后的bean可以被设置只有这个servlet实例自己使用的属性-->
+    <!--当一个Request对象产生时，会把这个WebApplciationContext上下文保存在Request对象中-->
+    <servlet>
+        <servlet-name>mvc-dispatcher</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath*:/servlet-mvc.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>mvc-dispatcher</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+    <!--dispatcherServlet的处理流程：-->
+    <!--0.用户发送请求到DispatcherServlet,DispatcherServlet作为统一访问点，进行全局的流程控制-->
+    <!--1.遍历注册的HandlerMapping列表，查找request对应的HandlerExecutionChain对象（包含一个Handler处理器（页面控制器,即controller）对象、多个HandlerInterceptor拦截器），一旦找到立即返回-->
+    <!--2.HandlerAdapter将Controller包装成适配器-->
+    <!--3.HandlerAdapter将会根据适配结果调用真正的处理器的功能处理方法，完成功能处理；并返回一个ModelAndView对象（包括模型数据、逻辑视图名）-->
+    <!--4.ViewResolver将把逻辑视图名解析为具体的View-->
+    <!--5.View根据传进来的Model模型数据进行渲染，此处的Model实际上是一个Map数据结构-->
+    <!--6.返回控制权给dispatcherServlet，由DispatcherServlet返回响应给用户，到此基本上一个流程结束-->
+
+    <!--Spring mvc实现多个线程其实是通过tomcat实现的-->
+
+
+    <filter>
+        <filter-name>encodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+        <init-param>
+            <param-name>forceEncoding</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>encodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+</web-app>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

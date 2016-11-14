@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+       <bean id="httpService" class="com.apin.third.service.http.HttpService" init-method="init" destroy-method="close">
+       </bean>
+
+       <bean id="chatRoomService" class="com.apin.third.service.instant.messenger.ChatRoomService">
+              <property name="httpService" ref="httpService"/>
+       </bean>
+
+</beans>

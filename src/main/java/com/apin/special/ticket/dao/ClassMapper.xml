@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.apin.special.ticket.dao.ClassMapper">
+
+    <resultMap id="teacherResultMap" type="com.apin.special.ticket.po.Teacher">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="age" column="age"/>
+    </resultMap>
+
+    <select id="getTeacher" resultMap="teacherResultMap" parameterType="Integer">
+        select * from teacher t where t.id=#{id}
+    </select>
+
+    <!-- association联合元素的应用，用来处理"一对一"的关系，方式之一就是通过一个select执行一个其他映射的SQL语句并返回一个Java实体类型-->
+    <resultMap id="selectMethodClassResultMap" type="com.apin.special.ticket.po.ClassRoom">
+        <id property="id" column="id" />
+        <result property="className" column="class_name"/>
+        <association property="teacher" column="teacher_id" select="getTeacher"/>
+    </resultMap>
+
+    <select id="getClassRoomWithSelectMethod" parameterType="Integer" resultMap="selectMethodClassResultMap">
+        select * from class_room t where t.id=#{id}
+    </select>
+
+    <!-- association联合元素的应用，用来处理"一对一"的关系，方式之二就是使用一个嵌套的结果映射来处理通过join查询结果集，映射成Java实体类型-->
+    <resultMap id="resultMapMethodClassResultMap" type="com.apin.special.ticket.po.ClassRoom">
+        <id property="id" column="id"/>
+        <result property="className" column="class_name"/>
+        <association property="teacher" column="teacher_id" resultMap="teacherResultMap"/>
+    </resultMap>
+    
+    <select id="getClassRoomWithResultMapMethod" parameterType="Integer" resultMap="resultMapMethodClassResultMap">
+        select * from class_room ct left join teacher tt on ct.teacher_id=tt.id where ct.id=#{id}
+    </select>
+
+    <!--注意:在这个地方不需要生成TeacherMapper.xml和TeacherMapper两个东西，但是需要Teacher这个实体类-->
+
+    <!--*************************************************************一对一关系结束*******************************************************************************-->
+
+    <!--*************************************************************一对多关系开始*****************************************************************************************-->
+    <resultMap id="studentResultMap" type="com.apin.special.ticket.po.Student">
+        <id property="id" column="id"/>
+        <result property="studentName" column="student_name"/>
+        <result property="studentBirthday" column="student_birthday"/>
+        <result property="studentSex" column="student_sex"/>
+    </resultMap>
+
+    <select id="getStudentByClassId" parameterType="Integer" resultMap="studentResultMap" >
+        select * from student where class_id=#{classId}
+    </select>
+
+    <!--collection聚集元素的应用，用来处理"一对多"的关系，方式之一就是通过一个select执行一个其他映射的SQL语句并返回一个Java实体类型-->
+    <resultMap id="selectMethodClassWithStudentResultMap" type="com.apin.special.ticket.po.ClassRoomWithStudent">
+        <id property="id" column="id"/>
+        <result property="className" column="class_name"/>
+        <collection property="students" column="id" javaType="ArrayList" ofType="com.apin.special.ticket.po.Student" select="getStudentByClassId"/>
+    </resultMap>
+
+    <select id="getClassRoomWithStudentWithSelectMethod" resultMap="selectMethodClassWithStudentResultMap">
+        select * from class_room where id=#{id}
+    </select>
+
+    <!--collection聚集元素的应用，用来处理"一对多"的关系，方式之二就是使用一个嵌套的结果映射来处理通过join查询结果集，映射成Java实体类型-->
+    <resultMap id="resultMapMethodClassWithStudentResultMap" type="com.apin.special.ticket.po.ClassRoomWithStudent">
+        <id property="id" column="id"/>
+        <result property="className" column="class_name"/>
+        <collection property="students" column="id" javaType="ArrayList" ofType="com.apin.special.ticket.po.Student" resultMap="studentResultMap"/>
+    </resultMap>
+
+    <select id="getClassRoomWithStudentWithResultMapMethod" parameterType="Integer" resultMap="resultMapMethodClassWithStudentResultMap">
+        select * from class_room ct left join student st on ct.id=st.class_id where ct.id=#{id}
+    </select>
+</mapper>

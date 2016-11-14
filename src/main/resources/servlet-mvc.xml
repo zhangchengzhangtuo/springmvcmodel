@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/mvc
+		http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd"
+        >
+
+
+       <!--相当于注册了DefaultAnnotationHandlerMapping和AnnotationMethodHandlerAdapter两个bean-->
+       <!--DefaultAnnotationHandlerMapping  通过注解，把一个URL映射到Controller类上-->
+       <!--AnnotationMethodHandlerAdapter   通过注解，把一个URL映射到Controller类的方法上-->
+       <mvc:annotation-driven />
+
+       <!--@Repository @Service @Controller @required @resource,@autowired、@PostConstruct @PreDestroy @PersistenceContext @PersistenceUnit-->
+       <!-- 主要作用就是通过注解的方式将bean注册到spring容器中去-->
+       <!--@Controller 声明Action组件  @Service 声明Service组件 @Repository 声明Dao组件 @Component  泛指组件，当不好归类时-->
+       <!--@Resource 用于注入，默认按名称装配  @Autowired 用于注入-->
+       <!--@RequestMapping 请求映射 @ResponseBody @Transactional 事务管理-->
+       <!--@Scope 设定bean的作用域-->
+       <context:component-scan base-package="com.apin">
+              <!-- 分开注册的目的是为了事务，servlet-mvc.xml作为子容器是在applicationContext.xml容器之后启动的-->
+              <!-- applicationContext.xml启动时，会管理包中的内容（注解类），并且管理中配置了事务-->
+              <!-- servlet-mvc.xml启动时，也会管理包中的内容，并且会覆盖前面applicationContext对包的管理，而新的管理中兵没有配置事务，所以导致事务失败-->
+              <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+       </context:component-scan>
+
+       <!-- 对静态资源文件的访问-->
+       <!--方案一：使用default-servlet-handler-->
+       <!--<mvc:default-servlet-handler/>-->
+       <!--方案二：使用mvc resources-->
+       <mvc:resources mapping="/images/**" location="/WEB-INF/images/"/>
+       <mvc:resources mapping="/js/**" location="/WEB-INF/js/"/>
+       <mvc:resources mapping="/css/**" location="/WEB-INF/css/"/>
+
+       <!--解决JSP动态展示的问题-->
+       <bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+              <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>
+              <property name="prefix" value="/WEB-INF/pages/"></property>
+              <property name="suffix" value=".jsp"/>
+       </bean>
+       
+       
+       <mvc:interceptors>
+              <mvc:interceptor>
+                     <mvc:mapping path="/**"/>
+                     <mvc:exclude-mapping path="/"/>
+                     <!--实现拦截器有两种方式，一种方式是定义一个类实现spring的HandlerInterceptor接口或者是这个类继承spring已经实现了HandlerInterceptor接口的类，
+                     比如spirng已经提供的实现了HandlerInterceptor接口的抽象类HandlerInterceptorAdapter-->
+                     <!--第二种方式是实现Spring的WebRequestInterceptor接口，或者是继承spring已经实现了的WebRequestInterceptor的类-->
+                     <bean class="com.apin.interceptors.LoginInterceptor"/>
+              </mvc:interceptor>
+       </mvc:interceptors>
+
+</beans>

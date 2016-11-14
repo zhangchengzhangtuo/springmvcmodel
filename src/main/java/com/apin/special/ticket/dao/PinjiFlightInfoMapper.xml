@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.apin.special.ticket.dao.PinjiFlightInfoMapper">
+    <resultMap id="BaseResultMap" type="com.apin.special.ticket.po.PinjiFlightInfo">
+        <id column="ID" property="id" jdbcType="INTEGER"/>
+        <result column="PARENT_ID" property="parentId" jdbcType="INTEGER"/>
+        <result column="TRIP_NUMBER" property="tripNumber" jdbcType="INTEGER"/>
+        <result column="FLIGHT_TYPE" property="flightType" jdbcType="CHAR"/>
+        <result column="MERCHANT_ID" property="merchantId" jdbcType="INTEGER"/>
+        <result column="AIR_COMP" property="airComp" jdbcType="VARCHAR"/>
+        <result column="FLIGHT_NO" property="flightNo" jdbcType="VARCHAR"/>
+        <result column="PLANE_TYPE" property="planeType" jdbcType="VARCHAR"/>
+        <result column="DEPART_PLACE_CODE" property="departPlaceCode" jdbcType="VARCHAR"/>
+        <result column="DEPART_PLACE" property="departPlace" jdbcType="VARCHAR"/>
+        <result column="DEPART_AIRPORT" property="departAirport" jdbcType="VARCHAR"/>
+        <result column="DEST_PLACE_CODE" property="destPlaceCode" jdbcType="VARCHAR"/>
+        <result column="DEST_PLACE" property="destPlace" jdbcType="VARCHAR"/>
+        <result column="DEPART_DATE" property="departDate" jdbcType="VARCHAR"/>
+        <result column="DEPART_TIME" property="departTime" jdbcType="CHAR"/>
+        <result column="ARRIVE_AIRPORT" property="arriveAirport" jdbcType="VARCHAR"/>
+        <result column="ARRIVE_DATE" property="arriveDate" jdbcType="VARCHAR"/>
+        <result column="ARRIVE_TIME" property="arriveTime" jdbcType="CHAR"/>
+        <result column="FLYING_TIME" property="flyingTime" jdbcType="DOUBLE"/>
+        <result column="TRAVEL_TYPE" property="travelType" jdbcType="CHAR"/>
+        <result column="REMAIN_TICKET_NUM" property="remainTicketNum" jdbcType="INTEGER"/>
+        <result column="TEAM_NUMBER" property="teamNumber" jdbcType="INTEGER"/>
+        <result column="PASSENGER_TYPE" property="passengerType" jdbcType="CHAR"/>
+        <result column="HAS_TURN" property="hasTurn" jdbcType="CHAR"/>
+        <result column="FEE_TYPE" property="feeType" jdbcType="CHAR"/>
+        <result column="CURRENCY" property="currency" jdbcType="VARCHAR"/>
+        <result column="TOTAL_PRICE_INCTAX" property="totalPriceInctax" jdbcType="DECIMAL"/>
+        <result column="ORGIN_TICKET_PRICE" property="orginTicketPrice" jdbcType="DECIMAL"/>
+        <result column="TAX_FEE" property="taxFee" jdbcType="DECIMAL"/>
+        <result column="OIL_FEE" property="oilFee" jdbcType="DECIMAL"/>
+        <result column="BUILD_FEE" property="buildFee" jdbcType="DECIMAL"/>
+        <result column="CABIN_TYPE" property="cabinType" jdbcType="CHAR"/>
+        <result column="CABIN_NAME" property="cabinName" jdbcType="VARCHAR"/>
+        <result column="SOURCE" property="source" jdbcType="CHAR"/>
+        <result column="ROUTE_TYPE" property="routeType" jdbcType="CHAR"/>
+        <result column="IS_SHELVES" property="isShelves" jdbcType="CHAR"/>
+        <result column="IMG_URL" property="imgUrl" jdbcType="VARCHAR"/>
+        <result column="ACCIDENT_INSURANCE_PRICE" property="accidentInsurancePrice" jdbcType="DECIMAL"/>
+        <result column="DELAY_DISK_PRICE" property="delayDiskPrice" jdbcType="DECIMAL"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="VARCHAR"/>
+        <result column="LAST_DATE_TICKET" property="lastDateTicket" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="specialTicketResultMap" type="com.apin.special.ticket.vo.FlightInfoVo">
+        <result column="ARRIVE_DATE" property="arriveDate" jdbcType="VARCHAR"/>
+        <result column="ARRIVE_TIME" property="arriveTime" jdbcType="CHAR"/>
+        <result column="DEPART_DATE" property="departDate" jdbcType="VARCHAR"/>
+        <result column="DEPART_TIME" property="departTime" jdbcType="CHAR"/>
+        <result column="DEPART_PLACE_CODE" property="departPlaceCode" jdbcType="VARCHAR"/>
+        <result column="DEPART_PLACE" property="departPlace" jdbcType="VARCHAR"/>
+        <result column="DEST_PLACE_CODE" property="destPlaceCode" jdbcType="VARCHAR"/>
+        <result column="DEST_PLACE" property="destPlace" jdbcType="VARCHAR"/>
+        <result column="TOTAL_PRICE_INCTAX" property="totalPriceInctax" jdbcType="DECIMAL"/>
+        <result column="ROUTE_TYPE" property="routeType" jdbcType="CHAR"/>
+    </resultMap>
+
+    <!--可复用的Sql语句-->
+    <sql id="baseColumnList">
+        ARRIVE_DATE,ARRIVE_TIME,DEPART_DATE,DEPART_TIME,DEPART_PLACE_CODE,DEPART_PLACE,DEST_PLACE_CODE,
+        DEST_PLACE_CODE,TOTAL_PRICE_INCTAX,ROUTE_TYPE
+    </sql>
+
+    <resultMap id="resultMapWithConstruct" type="com.apin.special.ticket.po.FlightInfoConstruct">
+        <constructor>
+            <idArg javaType="Integer" column="id"/>
+            <arg javaType="String" column="DEPART_DATE"/>
+            <arg javaType="String" column="DEPART_PLACE_CODE"/>
+            <arg javaType="String" column="DEPART_PLACE"/>
+            <arg javaType="String" column="DEST_PLACE_CODE"/>
+            <arg javaType="String" column="DEST_PLACE"/>
+        </constructor>
+    </resultMap>
+
+
+    <!--*******************************************************************普通的result映射开始******************************************************************************-->
+    <!--测试参数类型为普通的String类型-->
+    <!--#{}中的参数怎么写好像没什么关系，但是不能为空，而且这个地方将parameterType改成com.apin.special.ticket.vo.FlightInfoVo也没有影响-->
+    <!--flushCache默认为false，表示任何时候语句被调用，都不会去清空本地缓存和二级缓存-->
+    <!--useCache默认为true，表示会将本条语句的结果进行二级缓存-->
+    <select id="getFlightInfoByString" parameterType="String" resultMap="specialTicketResultMap" flushCache="true" useCache="false" statementType="PREPARED">
+        SELECT * FROM APIN_FLIGHT_INFO t WHERE t.PARENT_ID='0' AND t.REMAIN_TICKET_NUM>0 AND t.DEPART_DATE>#{departDate}
+    </select>
+
+    <!--测试多个参数，测试where标签-->
+    <!--要与参数列表中参数对应-->
+    <!--这个地方用了where标签而不是用的WHERE-->
+    <select id="getFlightInfoByMultiString" resultMap="specialTicketResultMap">
+        SELECT * FROM APIN_FLIGHT_INFO t
+        <where>
+            <if test="departDate!=null and departDate!=''">
+                t.DEPART_DATE>#{departDate}
+            </if>
+            <if test="arriveDate!=null and arriveDate!=''">
+                AND t.ARRIVE_DATE>#{arriveDate}
+            </if>
+        </where>
+    </select>
+
+    <!--测试参数为实体类型-->
+    <!--#{}中的参数很重要，不能乱写，一定要与实体类中的属性对应-->
+    <select id="getFlightInfoByEntity" parameterType="com.apin.special.ticket.vo.FlightInfoVo" resultMap="specialTicketResultMap">
+        SELECT * FROM APIN_FLIGHT_INFO t WHERE t.PARENT_ID='0' AND t.REMAIN_TICKET_NUM>0 AND t.DEPART_DATE>#{departDate} AND t.ARRIVE_DATE>#{arriveDate}
+    </select>
+
+    <!--测试参数为Map类型-->
+    <!--#{}中的参数很重要，不能乱写，一定要与map中的key对应-->
+    <select id="getFlightInfoByMap" parameterType="Map" resultMap="specialTicketResultMap">
+        SELECT * FROM APIN_FLIGHT_INFO t WHERE t.PARENT_ID='0' AND t.REMAIN_TICKET_NUM>0 AND t.DEPART_DATE>#{departDate} AND t.ARRIVE_DATE>#{arriveDate}
+    </select>
+
+    <!--测试参数为List类型-->
+    <select id="getFlightInfoByParentIdList" resultMap="specialTicketResultMap">
+        SELECT * FROM APIN_FLIGHT_INFO t WHERE t.PARENT_ID IN
+        <foreach collection="list" item="parentIdList" open="(" separator="," close=")">
+            #{parentIdList}
+        </foreach>
+    </select>
+
+    <!--测试参数为数组类型-->
+    <select id="getFlightInfoByParentIdArray" resultMap="specialTicketResultMap">
+        SELECT * FROM APIN_FLIGHT_INFO t WHERE t.PARENT_ID IN
+        <foreach collection="array" item="parentIdArray" open="(" separator="," close=")">
+            #{parentIdArray}
+        </foreach>
+    </select>
+
+    <!--测试复用SQL-->
+    <!--尽量不使用select *，只取需要的数据列，原因：1.select * 更多的消耗了CPU、内存、IO、网络带宽（先向数据库请求所有列，然后丢掉不需要列？）
+    2.更安全的设计：减少表变化带来的影响-->
+    <select id="getFlightInfoWithMutiplexSql" parameterType="String" resultMap="specialTicketResultMap">
+        SELECT <include refid="baseColumnList"/> FROM APIN_FLIGHT_INFO t WHERE t.PARENT_ID='0' AND t.REMAIN_TICKET_NUM>0 AND t.DEPART_DATE>#{departDate}
+    </select>
+
+    <!--测试返回类型为Entity的情形-->
+    <!--这个地方一定要注意的是javaBean的属性的格式一定要与数据库表中的各字段保持一致，这样在查出结果后mybatis才会将map里面的键值对
+    取出来赋给resultType所指定的对象对应的属性，也就是说数据库里面的Column名为DEPART_DATE，那么JavaBean中对应的属性一定要定义为
+    depart_date，如果定义为departDate都是错的-->
+    <!--http://blog.csdn.net/cao478208248/article/details/27492067很好的说明了这个问题-->
+    <select id="getFlightInfoReturnWithEntity" parameterType="Integer" resultType="com.apin.special.ticket.po.PinjiFlightInfo">
+        select * FROM APIN_FLIGHT_INFO t WHERE t.id=#{id}
+    </select>
+
+    <!--测试插入数据，并测试主键自增-->
+    <insert id="insertFlightInfo" parameterType="com.apin.special.ticket.po.PinjiFlightInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into apin_flight_info (DEPART_DATE,DEPART_PLACE_CODE,DEPART_PLACE,DEST_PLACE_CODE,DEST_PLACE) values(#{departDate},
+        #{departPlaceCode},#{departPlace},#{destPlaceCode},#{destPlace})
+    </insert>
+
+    <!--测试插入部分数据，并测试trim标签和if标签-->
+    <!--if标签作用类似于and的作用-->
+    <!--trim标签是除去因为if标签可能造成的多余的逗号等-->
+    <insert id="insertSelectFlightInfo" parameterType="com.apin.special.ticket.po.PinjiFlightInfo" useGeneratedKeys="true" keyProperty="id" flushCache="true">
+        insert into apin_flight_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="departDate!=null and departDate!=''">
+                DEPART_DATE,
+            </if>
+            <if test="departPlaceCode!=null and departPlaceCode!=''">
+                DEPART_PLACE_CODE,
+            </if>
+            <if test="departPlace!=null and departPlace!=''">
+                DEPART_PLACE,
+            </if>
+            <if test="destPlaceCode!=null and destPlaceCode!=''">
+                DEST_PLACE_CODE,
+            </if>
+            <if test="destPlace!=null and destPlace!=''">
+                DEST_PLACE
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="departDate!=null and departDate!=''">
+                #{departDate}
+            </if>
+            <if test="departPlaceCode!=null and departPlaceCode!=''">
+                #{departPlaceCode}
+            </if>
+            <if test="departPlace!=null and departPlace!=''">
+                #{departPlace}
+            </if>
+            <if test="destPlaceCode!=null and destPlaceCode!=''">
+                #{destPlaceCode}
+            </if>
+            <if test="destPlace!=null and destPlace!=''">
+                #{destPlace}
+            </if>
+        </trim>
+    </insert>
+
+    <!--测试更新数据-->
+    <update id="updateFlightInfo" parameterType="com.apin.special.ticket.po.FlightInfo">
+        update apin_flight_info t set t.DEPART_DATE=#{departDate},t.DEPART_PLACE_CODE=#{departPlaceCode},t.DEPART_PLACE=#{departPlace}
+        ,t.DEST_PLACE_CODE=#{destPlaceCode},t.DEST_PLACE=#{destPlace} where t.id=#{id}
+    </update>
+
+    <!--测试更新数据，并测试set标签-->
+    <update id="updateSelectFlightInfo" parameterType="com.apin.special.ticket.po.FlightInfo">
+        update apin_flight_info t
+        <set>
+            <if test="departDate!=null and departDate!=''">
+                t.DEPART_DATE=#{departDate}
+            </if>
+            <if test="departPlaceCode!=null and departPlaceCode!=''">
+                t.DEPART_PLACE_CODE=#{departPlaceCode}
+            </if>
+            <if test="departPlace!=null and departPlace!=''">
+                t.DEPART_PLACE=#{departPlace}
+            </if>
+            <if test="destPlaceCode!=null and destPlaceCode!=''">
+                t.DEST_PLACE_CODE=#{destPlaceCode}
+            </if>
+            <if test="destPlace!=null and destPlace!=''">
+                t.DEST_PLACE=#{destPlace}
+            </if>
+        </set>
+        where t.id=#{id}
+    </update>
+
+    <delete id="deleteFlightInfo" parameterType="Integer">
+        delete from apin_flight_info where id=#{flightInfoId}
+    </delete>
+    <!--****************************************************************普通的result映射结束**********************************************************************************-->
+
+    <!--****************************************************************constructor映射开始************************************************************************************************-->
+    <!--我觉得这个地方跟result的方式没有太大的区别，一个以构造函数生成对象，一个通过属性注入生成对象-->
+    <select id="getFlightInfoWithConstructor" parameterType="Integer" resultMap="resultMapWithConstruct">
+        select * from apin_flight_info t where t.id=#{id}
+    </select>
+    <!--****************************************************************constructor映射结束************************************************************************************************************-->
+</mapper>
+        <!--注：这个地方主要测试了mybatis的增删查改基本的操作，一对一或者一对多-->
