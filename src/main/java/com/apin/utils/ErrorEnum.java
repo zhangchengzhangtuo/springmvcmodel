@@ -9,6 +9,7 @@ public enum ErrorEnum {
     ERROR_SUCCESS("00000000","操作成功"),
     ERROR_INTERNAL_SERVER_ERROR("00000001","服务器内部错误"),
     ERROR_PARAM_ISBLANK("00000002","存在为空的参数"),
+    ERROR_FAILED_VERIFIED("000000004","验证失败"),
     ;
 
     ErrorEnum(String errorCode,String errorMsg){
